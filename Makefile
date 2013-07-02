@@ -1,20 +1,22 @@
+#define the compiler
+CC=g++
+
+#define object files
+edrobjects = main.o csv_reader.o edr.o static_methods.o
+testobjects = testfield.o field.o stdout_visitor.o fileout_visitor.o
+
+#default rule
 all: edrmake
 
-edrmake: main.o csv_reader.o edr.o static_methods.o
-	g++ main.o csv_reader.o edr.o static_methods.o -o edrmake
+edrmake: $(edrobjects)
+	$(CC) -o $@ $+
 
-main.o: main.cpp
-	g++ -c main.cpp
-
-csv_reader.o: csv_reader.cpp
-	g++ -c csv_reader.cpp
-
-edr.o: edr.cpp
-	g++ -c edr.cpp
+testit: $(testobjects)
+	$(CC) -o $@ $+
 	
-static_methods.o: static_methods.cpp
-	g++ -c static_methods.cpp
-
 clean:
-	rm -rf *.o edrmake
-
+	rm -rf *.o edrmake testit
+	
+# tell make how to build .o files from .cpp files:
+%.o:%.cpp
+	$(CC) -c $+
