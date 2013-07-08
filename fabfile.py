@@ -57,8 +57,7 @@ def get_git_ref():
 	return words[0]
 	
 def cleanup():
-	git_ref = get_git_ref()
-	path = 'temp/'+git_ref
+	path = 'temp/'
 	if os.path.exists(path):
 		shutil.rmtree(path)
 	
