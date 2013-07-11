@@ -11,8 +11,8 @@ import sys
  
 
 gbl_branch = "master"
-gbl_release_path = '/tmp/edrmake/releases/'
-gbl_current = '/tmp/edrmake/current'
+gbl_release_path = '/tmp/edrmake_p/releases/'
+gbl_current = '/tmp/edrmake_p/current'
 env.user = 'hbehrens'
 
 def git_clone():
