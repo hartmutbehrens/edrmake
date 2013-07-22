@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <dirent.h>
 #include <stdio.h>
 #include <ctime>
 #include <typeinfo>
@@ -10,6 +11,13 @@
 #include "structures.h"
 #include "static_methods.h"
 
+//TODO: randomize data volumes and call durations
+//TODO: ability to specify output dir from cmd line
+//TODO: CFW records and third party numbers
+//TODO: randomize A and B numbers
+//TODO: limit rec entities for SMS to a pool of randoms
+//TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
+
 int main(int argc, char **argv)
 {
 	string_vector record_types, op_choices;
@@ -18,7 +26,7 @@ int main(int argc, char **argv)
 	sim_map test_sim_cards;
 	init_types(record_types);
 
-	std::string fra_choice, rec_choice, em_num, serving_bid, edr_req, date, operator_file, sim_file;
+	std::string fra_choice, rec_choice, em_num, serving_bid, edr_req, date, operator_file, sim_file, output_path;
 
 	char cdate[20];
 	time_t date_seconds;
@@ -26,6 +34,7 @@ int main(int argc, char **argv)
 	date = cdate;
 
 	int num_edr = 6, test_interval = 0;
+	output_path = "./";
 	bool has_f = false, has_o = false, has_r = false, has_of = false, has_sf = false, use_blank_utc = false;
 
 	if (argc > 1)
@@ -132,6 +141,22 @@ int main(int argc, char **argv)
 			test_interval = atoi (*test_iv);
 		}
 		
+		//output path
+		if(cmd_option_exists(argv, argv+argc, "-p"))
+		{
+			char **cpath = get_cmd_option(argv, argv + argc, "-p");
+			//std::cout << "Checking if " << *cpath << "exists" << std::endl;
+			if (path_exists(*cpath) )
+			{
+				output_path = *cpath;
+			}
+			else
+			{
+				std::cerr << "The specified output path \""<< *cpath << "\" does not exist! " << std::endl;
+				return 1;
+			}
+		}
+
 	}
 	if (has_f && has_o && has_r && has_of && has_sf)
 	{
@@ -191,7 +216,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		print_help(operators, franchises, record_types, date, num_edr, use_blank_utc, em_num, serving_bid, test_interval);
+		print_help(operators, franchises, record_types, date, num_edr, use_blank_utc, em_num, serving_bid, test_interval, output_path);
 		return 1;
 	}
 	return(0);
@@ -301,7 +326,8 @@ void print_help
 	bool use_blank, 
 	std::string em_num, 
 	std::string sbid,
-	int test_interval
+	int test_interval,
+	std::string output_path
 	)
 {
 	std::cerr << "Usage: edrmake [OPTIONS]" << std::endl;
@@ -344,6 +370,8 @@ void print_help
 	std::cerr << std::endl;
 	std::cerr << "\t-i Test SIM interval (0=none)\t Default choice: " << test_interval;
 	std::cerr << std::endl;
+	//std::cerr << "\t-p Output path\t\t\t Default choice: " << output_path;
+	//std::cerr << std::endl;
 }
 
 template<typename T> void print_choices(T &choices)
@@ -397,4 +425,23 @@ std::string make_imsi(std::string &mcc, std::string &mnc, int record)
 	imsi = (mnc.length() < 2) ? (imsi + '0' + mnc) : (imsi + mnc);
 	imsi = imsi + static_methods::pad_number(record, 10);
 	return imsi;
+}
+
+bool path_exists(const char *path)
+{
+	if (path == NULL)
+	{
+		return false;
+	}
+
+	bool exists = false;
+	DIR *the_dir;
+	the_dir = opendir(path);
+
+	if (the_dir != NULL)
+	{
+		exists = true;
+		closedir(the_dir);
+	}
+	return exists;
 }
