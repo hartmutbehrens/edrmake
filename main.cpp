@@ -183,6 +183,7 @@ int main(int argc, char **argv)
 			date_seconds = string_to_time_t(date) + i;
 			time_t_to_char( date_seconds, cdate, sizeof(cdate));
 			event_date = cdate;
+			//std::cout << "event date [" << event_date << "]" << std::endl;
 
 			std::string imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC, i);
 			std::string hpmn_number = operators[fra_choice].COUNTRY_IDD + static_methods::pad_number(i, 8);
@@ -405,16 +406,18 @@ void time_t_to_char(time_t now, char *buf, size_t max_size)
 
 time_t string_to_time_t(std::string time_in)
 {
-	struct tm tstruct;
-	tstruct.tm_year = atoi( time_in.substr(0,4).c_str()) - 1900;
-	tstruct.tm_mon = atoi( time_in.substr(4,2).c_str()) - 1;
-	tstruct.tm_mday = atoi( time_in.substr(6,2).c_str() );
-	tstruct.tm_hour = atoi( time_in.substr(8,2).c_str() );
-	tstruct.tm_min = atoi( time_in.substr(10,2).c_str() );
-	tstruct.tm_sec = atoi( time_in.substr(12,2).c_str() );
+	struct tm *tstruct;
+	time_t rawtime;
+	time(&rawtime);
+	tstruct = localtime(&rawtime);
+	tstruct->tm_year = atoi( time_in.substr(0,4).c_str()) - 1900;
+	tstruct->tm_mon = atoi( time_in.substr(4,2).c_str()) - 1;
+	tstruct->tm_mday = atoi( time_in.substr(6,2).c_str() );
+	tstruct->tm_hour = atoi( time_in.substr(8,2).c_str() );
+	tstruct->tm_min = atoi( time_in.substr(10,2).c_str() );
+	tstruct->tm_sec = atoi( time_in.substr(12,2).c_str() );
 
-	time_t seconds;
-	seconds = mktime(&tstruct);
+	time_t seconds = mktime(tstruct);
 	return seconds;
 }
 
