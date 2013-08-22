@@ -57,7 +57,7 @@ edr::edr(std::string the_imsi, std::string hpmn_number, std::string vpmn_number,
 		populate(record.CALLING_NUMBER, vpmn_number);
 		populate(record.CALLED_NUMBER, hpmn_number);
 		populate(record.DIALLED_DIGITS, hpmn_number);
-		populate(record.CELL_ID,"99999");
+		populate(record.CELL_ID,"12345");
 	}
 	else
 	{
@@ -71,7 +71,7 @@ edr::edr(std::string the_imsi, std::string hpmn_number, std::string vpmn_number,
 		{
 			populate(record.CALLED_NUMBER, vpmn_number);
 			populate(record.DIALLED_DIGITS, vpmn_number);
-			populate(record.CELL_ID,"99999");
+			populate(record.CELL_ID,"12345");
 		}
 	}
 }
