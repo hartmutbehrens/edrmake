@@ -13,9 +13,10 @@
 
 //TODO: randomize data volumes and call durations
 //TODO: ability to specify output dir from cmd line
-//TODO: CFW records and third party numbers
+//TODO: CFW records and third party numbers - make sure number makes sense
 //TODO: randomize A and B numbers
 //TODO: limit rec entities for SMS to a pool of randoms
+//TODO: limit rec entitites for GPRS switch id to pool of numbers
 //TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
 
 int main(int argc, char **argv)
@@ -36,6 +37,7 @@ int main(int argc, char **argv)
 	int num_edr = 6, test_interval = 0;
 	output_path = "./";
 	bool has_f = false, has_o = false, has_r = false, has_of = false, has_sf = false, use_blank_utc = false;
+	bool verbose = false;
 
 	if (argc > 1)
 	{
@@ -83,12 +85,6 @@ int main(int argc, char **argv)
 		}
 		//operator
 		char **begin = argv;
-		//if(cmd_option_exists(argv, argv+argc, "-o"))
-		//{
-		//	char **op = get_cmd_option(argv, argv + argc, "-o");
-		//	op_choice = *op;
-		//	has_o = true;
-		//}
 		while( cmd_option_exists(begin, argv+argc, "-o") )
 		{
 			begin = get_cmd_option(begin, argv + argc, "-o");  // match and move start search position (begin) along to last matched
@@ -96,7 +92,6 @@ int main(int argc, char **argv)
 			has_o = true;
 		}
 		//records
-
 		if(cmd_option_exists(argv, argv+argc, "-r"))
 		{
 			record_types.clear();	//clear default values
@@ -140,6 +135,11 @@ int main(int argc, char **argv)
 			char **test_iv = get_cmd_option(argv, argv + argc, "-i");
 			test_interval = atoi (*test_iv);
 		}
+		//verbose
+		if(cmd_option_exists(argv, argv+argc, "-v"))
+		{
+			verbose = true;
+		}
 		
 		//output path
 		if(cmd_option_exists(argv, argv+argc, "-p"))
@@ -166,6 +166,8 @@ int main(int argc, char **argv)
 		std::string original_date = date;
 		std::string op_choice;
 		std::string filename = "ROM_" + fra_choice + original_date + ".DAT";
+
+		std::cout << "Generating EDR file..please be patient." << std::endl;
 
 		for (int i=0;i < num_edr; i++)
 		{
@@ -204,9 +206,11 @@ int main(int argc, char **argv)
 					hpmn_number = test_hpmn_number;
 				}
 			}
-			std::cout << "Generating record [" << i+1 << "] of type [" << record_types[which_type] << "] franchise [" << fra_choice << "]\toperator [" << op_choice << "] IMSI [" << imsi <<"]\tServing BID [" << serving_bid << "]" <<std::endl;
+			if (verbose)
+			{
+				std::cout << "Generating record [" << i+1 << "] of type [" << record_types[which_type] << "] franchise [" << fra_choice << "]\toperator [" << op_choice << "] IMSI [" << imsi <<"]\tServing BID [" << serving_bid << "]" <<std::endl;
+			}
 			edr *EDR = new edr(imsi, hpmn_number, vpmn_number, smsc_number, operators[op_choice].UTC_TIME_OFFSET, record_types[which_type],event_date,serving_bid, i, use_blank_utc);
-
 
 			EDR->to_file(filename);
 			which_type++;
@@ -370,6 +374,8 @@ void print_help
 	std::cerr << "\t-n Number of EDR's to generate\t Default choice: " << edr_num;
 	std::cerr << std::endl;
 	std::cerr << "\t-i Test SIM interval (0=none)\t Default choice: " << test_interval;
+	std::cerr << std::endl;
+	std::cerr << "\t-v Enable verbose output " << std::endl;
 	std::cerr << std::endl;
 	//std::cerr << "\t-p Output path\t\t\t Default choice: " << output_path;
 	//std::cerr << std::endl;
