@@ -5,7 +5,7 @@
 
 //function declarations
 std::string make_smsc(std::string country_idd, int rec_num);
-std::string make_xpmn_suffix(std::string country_idd);
+std::string make_xpmn(std::string country_idd);
 bool cmd_option_exists(char** begin, char** end, const std::string& option);
 char** get_cmd_option(char ** begin, char ** end, const std::string & option);
 void init_options(op_map &operators, string_map &);

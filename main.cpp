@@ -196,8 +196,8 @@ int main(int argc, char **argv)
 			{
 				imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC);
 			}
-			std::string hpmn_number = make_xpmn_suffix(operators[fra_choice].COUNTRY_IDD);
-			std::string vpmn_number = make_xpmn_suffix(operators[op_choice].COUNTRY_IDD);
+			std::string hpmn_number = make_xpmn(operators[fra_choice].COUNTRY_IDD);
+			std::string vpmn_number = make_xpmn(operators[op_choice].COUNTRY_IDD);
 			std::string smsc_number = make_smsc(operators[op_choice].COUNTRY_IDD, i);
 
 			if ( (test_interval > 0) && (i % test_interval) == 0)
@@ -253,11 +253,11 @@ std::string make_smsc(std::string country_idd, int rec_num)
 	return smsc;
 }
 
-std::string make_xpmn_suffix(std::string country_idd)
+std::string make_xpmn(std::string country_idd)
 {
 	std::string xpmn_suffix = static_methods::make_random_num(99999999);
 	xpmn_suffix = std::string( 8 - xpmn_suffix.size() , '0').append( xpmn_suffix);
-	return xpmn_suffix;
+	return country_idd + xpmn_suffix;
 }
 
 
