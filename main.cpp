@@ -369,6 +369,7 @@ bool is_test_imsi(sim_map &test_sim_cards, std::string imsi)
 std::string make_test_imsi(sim_map &sim_cards, std::string fra_and_op)
 {
 	std::string test_imsi = "";
+	// this will probably result in the same test imsi being found every time...
 	for (sim_map::iterator it = sim_cards.begin(); it != sim_cards.end(); it++)
 	{
 		if (it->second == fra_and_op)
