@@ -39,5 +39,5 @@ typedef struct
 typedef std::map<std::string, std::string> string_map;	
 typedef std::vector<std::string> string_vector;
 typedef std::map<std::string, operator_struct> op_map;
-typedef std::map<std::string, simcard_struct> sim_map;
+typedef std::map<std::string, std::string> sim_map;
 #endif

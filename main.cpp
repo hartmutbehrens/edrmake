@@ -8,11 +8,9 @@
 #include "csv_reader.h"
 #include "edr.h"
 #include "main.h"
-#include "structures.h"
 #include "static_methods.h"
 
 //TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
-//TODO: generated number and test sim card numbers should not be the same.
 
 const int MAX_SMSC_TO_GENERATE = 1000;
 static std::vector<std::string> smsc_numbers;
@@ -22,7 +20,7 @@ int main(int argc, char **argv)
 	string_vector record_types, op_choices;
 	string_map franchises;
 	op_map operators;
-	sim_map test_sim_cards;
+	sim_map test_sim_cards, test_msisdn;
 	init_types(record_types);
 
 	std::string fra_choice, rec_choice, em_num, serving_bid, edr_req, date, operator_file, sim_file, output_path;
@@ -76,8 +74,10 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				void (*process_function)(std::vector<std::string> &, sim_map &) = map_simcards;
-				process_file(sim_file, process_function, test_sim_cards);
+				void (*sim_process_function)(std::vector<std::string> &, sim_map &) = map_simcards;
+				process_file(sim_file, sim_process_function, test_sim_cards);
+				void (*msisdn_process_function)(std::vector<std::string> &, sim_map &) = map_test_msisdn;
+				process_file(sim_file, msisdn_process_function, test_msisdn);
 				has_sf = true;
 			}
 		}
@@ -189,14 +189,19 @@ int main(int argc, char **argv)
 			time_t_to_char( date_seconds, cdate, sizeof(cdate));
 			event_date = cdate;
 
-			std::string imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC, i);
+			//std::string test_imsi = test_sim_cards[fra_choice+op_choice].IMSI;
+			std::string test_imsi = make_test_imsi(test_sim_cards, fra_choice+op_choice);
+			std::string imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC);
+			while (is_test_imsi(test_sim_cards, imsi))
+			{
+				imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC);
+			}
 			std::string hpmn_number = make_xpmn_suffix(operators[fra_choice].COUNTRY_IDD);
 			std::string vpmn_number = make_xpmn_suffix(operators[op_choice].COUNTRY_IDD);
 			std::string smsc_number = make_smsc(operators[op_choice].COUNTRY_IDD, i);
+
 			if ( (test_interval > 0) && (i % test_interval) == 0)
 			{
-				std::string test_imsi = test_sim_cards[fra_choice+op_choice].IMSI;
-				std::string test_hpmn_number = test_sim_cards[fra_choice+op_choice].MSISDN;
 				if (test_imsi.length() == 0)
 				{
 					std::cerr << "No Test SIM records found in " << sim_file << " for franchise " << fra_choice << " and operator " << op_choice << " !" << std::endl;
@@ -205,7 +210,7 @@ int main(int argc, char **argv)
 				{
 					test_record_count++;
 					imsi = test_imsi;
-					hpmn_number = test_hpmn_number;
+					hpmn_number = test_msisdn[test_imsi];
 				}
 			}
 			if (verbose)
@@ -335,18 +340,43 @@ void map_operators(std::vector<std::string> &fields, op_map &operators)
 	}
 }
 
-// populate an operator_struct from the fields of a line read from the IR_OPERATOR_EXPORT
 void map_simcards(std::vector<std::string> &fields, sim_map &sim_cards)
 {
 	if (fields.size() == 8)
 	{
-		simcard_struct op =
-		{
-			fields.at(0), fields.at(1), fields.at(2), fields.at(3),
-			fields.at(4), fields.at(5), fields.at(6), fields.at(7)
-		};
-		sim_cards[fields.at(0)+fields.at(1)] = op;
+		sim_cards[fields.at(2)] = fields.at(0)+fields.at(1);
 	}
+}
+
+void map_test_msisdn(std::vector<std::string> &fields, sim_map &test_msisdn)
+{
+	if (fields.size() == 8)
+	{
+		test_msisdn[fields.at(2)] = fields.at(3);
+	}
+}
+
+bool is_test_imsi(sim_map &test_sim_cards, std::string imsi)
+{
+	bool is_test = false;
+	if (test_sim_cards.find(imsi) != test_sim_cards.end())
+	{
+		is_test = true;
+	}
+	return is_test;
+}
+
+std::string make_test_imsi(sim_map &sim_cards, std::string fra_and_op)
+{
+	std::string test_imsi = "";
+	for (sim_map::iterator it = sim_cards.begin(); it != sim_cards.end(); it++)
+	{
+		if (it->second == fra_and_op)
+		{
+			test_imsi = it->first;
+		}
+	}
+	return test_imsi;
 }
 
 void print_help
@@ -456,14 +486,19 @@ time_t string_to_time_t(std::string time_in)
 	return seconds;
 }
 
-std::string make_imsi(std::string &mcc, std::string &mnc, int record)
+std::string make_imsi(std::string &mcc, std::string &mnc)
 {
 	std::string imsi;
 	imsi = (mcc.length() < 3) ? ('0' + mcc) : mcc;
 	imsi = (mnc.length() < 2) ? (imsi + '0' + mnc) : (imsi + mnc);
-	imsi = imsi + static_methods::pad_number(record, 10);
+
+	std::string suffix = static_methods::make_random_num(99999);
+	suffix = std::string( 10 - suffix.size() , '0').append( suffix);
+
+	imsi = imsi + suffix;
 	return imsi;
 }
+
 
 bool path_exists(const char *path)
 {
