@@ -5,6 +5,7 @@
  *  Created on: 04 Apr 2013
  *      Author: hartmut.behrens
  */
+#include <cstdlib>
 #include <sstream>
 #include "static_methods.h"
 
@@ -29,6 +30,16 @@ void static_methods::fillstring(std::string &to_fill, char fill_char, int len)
 	{
 		to_fill += fill_char;
 	}
+}
+
+std::string static_methods::make_random_num(int highest)
+{
+	std::string random_integer;
+	std::stringstream out;
+	int rnum = (rand () % highest) + 1;
+	out << rnum;
+	random_integer = out.str();
+	return random_integer;
 }
 
 

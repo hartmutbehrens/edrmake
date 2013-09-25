@@ -86,21 +86,11 @@ void edr::populate_default_fields(void)
 	populate(record.DATE, event_date);
 	populate(record.CAUSE_FOR_TERMINATION, "00");
 	populate(record.SERVING_BID, serving_bid);
-	std::string duration = make_random_num(999);
+	std::string duration = static_methods::make_random_num(999);
 	duration = std::string( 6 - duration.size() , '0').append( duration);
 	populate(record.CALL_DURATION,duration);
 	populate(record.VOLUME_UPLINK, "000000000000");
 	populate(record.VOLUME_DOWNLINK, "000000000000");
-}
-
-std::string edr::make_random_num(int highest)
-{
-	std::string random_integer;
-	std::stringstream out;
-	int rnum = (rand () % highest) + 1;
-	out << rnum;
-	random_integer = out.str();
-	return random_integer;
 }
 
 std::string edr::make_random_ip(void)
@@ -109,7 +99,9 @@ std::string edr::make_random_ip(void)
 	// generate an IP address
 	if (ip_addresses_.size() < MAX_IP_TO_GENERATE)
 	{
-		ip = std::string("123") + "." + std::string("123") + "." +  make_random_num(100) + "." + make_random_num(253);
+		std::string num3 = static_methods::make_random_num(100);
+		std::string num4 = static_methods::make_random_num(253);
+		ip = std::string("123") + "." + std::string("123") + "." +  num3 + "." + num4;
 		ip_addresses_.push_back(ip);
 	}
 	else
@@ -134,9 +126,9 @@ void edr::populate_gprs_fields(void)
 	populate(record.GGSNADDRESS, ggsn);
 	populate(record.SGSNADDRESS, sgsn);
 	populate(record.PDPADDRESS,pdp);
-	std::string ul_vol = make_random_num(20484096);
+	std::string ul_vol = static_methods::make_random_num(20484096);
 	ul_vol = std::string( 12 - ul_vol.size() , '0').append( ul_vol);
-	std::string dl_vol = make_random_num(20484096);
+	std::string dl_vol = static_methods::make_random_num(20484096);
 	dl_vol = std::string( 12 - dl_vol.size() , '0').append( dl_vol);
 	populate(record.VOLUME_UPLINK, ul_vol);
 	populate(record.VOLUME_DOWNLINK, dl_vol);

@@ -11,9 +11,7 @@
 #include "structures.h"
 #include "static_methods.h"
 
-//TODO: ability to specify output dir from cmd line
 //TODO: CFW records and third party numbers - make sure number makes sense
-//TODO: randomize A and B numbers
 //TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
 //TODO: generated number and test sim card numbers should not be the same.
 //TODO: when specifying record type, allow for syntax like "-r 6" or "-r 06"
@@ -151,6 +149,11 @@ int main(int argc, char **argv)
 			if (path_exists(*cpath) )
 			{
 				output_path = *cpath;
+				if (std::find(output_path.end()-2, output_path.end() ,'/') == output_path.end())
+				{
+					output_path += "/";
+				}
+
 			}
 			else
 			{
@@ -189,8 +192,8 @@ int main(int argc, char **argv)
 			event_date = cdate;
 
 			std::string imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC, i);
-			std::string hpmn_number = operators[fra_choice].COUNTRY_IDD + static_methods::pad_number(i, 8);
-			std::string vpmn_number = operators[op_choice].COUNTRY_IDD + static_methods::pad_number(i, 8);
+			std::string hpmn_number = make_xpmn_suffix(operators[fra_choice].COUNTRY_IDD);
+			std::string vpmn_number = make_xpmn_suffix(operators[op_choice].COUNTRY_IDD);
 			std::string smsc_number = make_smsc(operators[op_choice].COUNTRY_IDD, i);
 			if ( (test_interval > 0) && (i % test_interval) == 0)
 			{
@@ -213,12 +216,12 @@ int main(int argc, char **argv)
 			}
 			edr *EDR = new edr(imsi, hpmn_number, vpmn_number, smsc_number, operators[op_choice].UTC_TIME_OFFSET, record_types[which_type],event_date,serving_bid, i, use_blank_utc);
 
-			EDR->to_file(filename);
+			EDR->to_file(output_path + filename);
 			which_type++;
 			which_op++;
 			delete EDR;
 		}
-		std::cout << std::endl << "Saving to file [" << filename << "]" << std::endl;
+		std::cout << std::endl << "Saving to file [" << output_path + filename << "]" << std::endl;
 	}
 	else
 	{
@@ -245,6 +248,13 @@ std::string make_smsc(std::string country_idd, int rec_num)
 		smsc = smsc_numbers[index];
 	}
 	return smsc;
+}
+
+std::string make_xpmn_suffix(std::string country_idd)
+{
+	std::string xpmn_suffix = static_methods::make_random_num(99999999);
+	xpmn_suffix = std::string( 8 - xpmn_suffix.size() , '0').append( xpmn_suffix);
+	return xpmn_suffix;
 }
 
 
@@ -396,6 +406,7 @@ void print_help
 	std::cerr << "\t-i Test SIM interval (0=none)\t Default choice: " << test_interval;
 	std::cerr << std::endl;
 	std::cerr << "\t-v Enable verbose output " << std::endl;
+	std::cerr << "\t-p Path under which to store EDR " << std::endl;
 	std::cerr << std::endl;
 	//std::cerr << "\t-p Output path\t\t\t Default choice: " << output_path;
 	//std::cerr << std::endl;

@@ -53,7 +53,6 @@ private:
 		char SERVING_BID			[5];
 		char FILLER				[95];
 	} edr_struct;
-	std::string make_random_num(int highest);
 	std::string make_random_ip(void);
 public:
 	/* members */

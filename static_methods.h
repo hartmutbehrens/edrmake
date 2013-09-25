@@ -12,8 +12,9 @@ class static_methods
 {
 public:
 	static std::string pad_number(int number, int length);
-	static std::string pad_number_random(int number, int length);
+	//static std::string pad_number_random(int number, int length);
 	static void fillstring(std::string &to_fill, char fill_char, int len);
+	static std::string make_random_num(int highest);
 };
 
 #endif /* STATIC_METHODS_H_ */
