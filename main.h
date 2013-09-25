@@ -2,6 +2,7 @@
 #define __MAIN_H
 
 //function declarations
+std::string make_smsc(std::string country_idd, int rec_num);
 bool cmd_option_exists(char** begin, char** end, const std::string& option);
 char** get_cmd_option(char ** begin, char ** end, const std::string & option);
 void init_options(op_map &operators, string_map &);

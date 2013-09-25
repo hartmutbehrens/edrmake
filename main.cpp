@@ -14,10 +14,12 @@
 //TODO: ability to specify output dir from cmd line
 //TODO: CFW records and third party numbers - make sure number makes sense
 //TODO: randomize A and B numbers
-//TODO: limit rec entities for SMS to a pool of randoms
 //TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
 //TODO: generated number and test sim card numbers should not be the same.
 //TODO: when specifying record type, allow for syntax like "-r 6" or "-r 06"
+
+const int MAX_SMSC_TO_GENERATE = 1000;
+static std::vector<std::string> smsc_numbers;
 
 int main(int argc, char **argv)
 {
@@ -185,12 +187,11 @@ int main(int argc, char **argv)
 			date_seconds = string_to_time_t(date) + i;
 			time_t_to_char( date_seconds, cdate, sizeof(cdate));
 			event_date = cdate;
-			//std::cout << "event date [" << event_date << "]" << std::endl;
 
 			std::string imsi = make_imsi(operators[op_choice].MCC, operators[op_choice].MNC, i);
 			std::string hpmn_number = operators[fra_choice].COUNTRY_IDD + static_methods::pad_number(i, 8);
 			std::string vpmn_number = operators[op_choice].COUNTRY_IDD + static_methods::pad_number(i, 8);
-			std::string smsc_number = operators[op_choice].COUNTRY_IDD + static_methods::pad_number(i, 6);
+			std::string smsc_number = make_smsc(operators[op_choice].COUNTRY_IDD, i);
 			if ( (test_interval > 0) && (i % test_interval) == 0)
 			{
 				std::string test_imsi = test_sim_cards[fra_choice+op_choice].IMSI;
@@ -222,12 +223,31 @@ int main(int argc, char **argv)
 	else
 	{
 		print_help(operators, franchises, record_types, date, num_edr, use_blank_utc, em_num, serving_bid, test_interval, output_path);
-		return 1;
+		return(1);
 	}
 	return(0);
 }
 
 /* function definitions */
+std::string make_smsc(std::string country_idd, int rec_num)
+{
+	std::string smsc;
+
+	// generate an SMSC number
+	if (smsc_numbers.size() < MAX_SMSC_TO_GENERATE)
+	{
+		smsc = country_idd + static_methods::pad_number(rec_num, 6);
+		smsc_numbers.push_back(smsc);
+	}
+	else
+	{
+		int index = (rand () % MAX_SMSC_TO_GENERATE);
+		smsc = smsc_numbers[index];
+	}
+	return smsc;
+}
+
+
 bool cmd_option_exists(char **begin, char **end, const std::string &option)
 {
     return std::find(begin, end, option) != end;
