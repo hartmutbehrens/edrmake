@@ -11,12 +11,10 @@
 #include "structures.h"
 #include "static_methods.h"
 
-//TODO: randomize data volumes and call durations
 //TODO: ability to specify output dir from cmd line
 //TODO: CFW records and third party numbers - make sure number makes sense
 //TODO: randomize A and B numbers
 //TODO: limit rec entities for SMS to a pool of randoms
-//TODO: limit rec entitites for GPRS switch id to pool of numbers
 //TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
 //TODO: generated number and test sim card numbers should not be the same.
 //TODO: when specifying record type, allow for syntax like "-r 6" or "-r 06"

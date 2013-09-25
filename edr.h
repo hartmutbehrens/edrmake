@@ -1,6 +1,7 @@
 #ifndef __EDR_H
 #define __EDR_H
 #include <string>
+#include <vector>
 #include "structures.h"
 
 class edr 
@@ -77,4 +78,5 @@ public:
 	/* destructor */
 	~edr();
 };
+
 #endif

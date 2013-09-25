@@ -8,6 +8,9 @@
 #include "static_methods.h"
 #include "edr.h"
 
+const int MAX_IP_TO_GENERATE = 1000;
+static std::vector<std::string> ip_addresses_;
+
 edr::edr(std::string the_imsi, std::string hpmn_number, std::string vpmn_number, std::string smsc_number, std::string hpmn_utc, std::string event, std::string the_date, std::string sbid, int rec_num, bool use_blank_utc)
 : event_type(event), event_date(the_date), record_number(rec_num), serving_bid(sbid), imsi(the_imsi)
 {
@@ -102,13 +105,20 @@ std::string edr::make_random_num(int highest)
 
 std::string edr::make_random_ip(void)
 {
-	std::string ip_address;
-	std::string num1 = "123";
-	std::string num2 = "123";
-	std::string num3 = make_random_num(100);
-	std::string num4 = make_random_num(253);
-	ip_address =  num1 + "." + num2 + "." + num3 + "." + num4;
-	return ip_address;
+	std::string ip;
+	// generate an IP address
+	if (ip_addresses_.size() < MAX_IP_TO_GENERATE)
+	{
+		ip = std::string("123") + "." + std::string("123") + "." +  make_random_num(100) + "." + make_random_num(253);
+		ip_addresses_.push_back(ip);
+	}
+	else
+	{
+		// get an IP address from the one's already generated
+		int index = (rand () % MAX_IP_TO_GENERATE);
+		ip = ip_addresses_[index];
+	}
+	return ip;
 }
 
 void edr::populate_gprs_fields(void)
@@ -120,9 +130,7 @@ void edr::populate_gprs_fields(void)
 	populate(record.APN_NI, "www.flukeed.art");
 	populate(record.APN_OI, "www.flukeed.art");
 	populate(record.CHARGINGID, static_methods::pad_number( (id_base + record_number), 10) );
-	//populate(record.GGSNADDRESS, "123.123.123.123");
-	//populate(record.SGSNADDRESS, "123.123.123.124");
-	//populate(record.PDPADDRESS,"123.123.123.125");
+
 	populate(record.GGSNADDRESS, ggsn);
 	populate(record.SGSNADDRESS, sgsn);
 	populate(record.PDPADDRESS,pdp);
