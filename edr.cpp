@@ -83,7 +83,9 @@ void edr::populate_default_fields(void)
 	populate(record.DATE, event_date);
 	populate(record.CAUSE_FOR_TERMINATION, "00");
 	populate(record.SERVING_BID, serving_bid);
-	populate(record.CALL_DURATION, "000038");
+	std::string duration = make_random_num(999);
+	duration = std::string( 6 - duration.size() , '0').append( duration);
+	populate(record.CALL_DURATION,duration);
 	populate(record.VOLUME_UPLINK, "000000000000");
 	populate(record.VOLUME_DOWNLINK, "000000000000");
 }
@@ -124,8 +126,12 @@ void edr::populate_gprs_fields(void)
 	populate(record.GGSNADDRESS, ggsn);
 	populate(record.SGSNADDRESS, sgsn);
 	populate(record.PDPADDRESS,pdp);
-	populate(record.VOLUME_UPLINK, "000010242048");
-	populate(record.VOLUME_DOWNLINK, "000020484096");
+	std::string ul_vol = make_random_num(20484096);
+	ul_vol = std::string( 12 - ul_vol.size() , '0').append( ul_vol);
+	std::string dl_vol = make_random_num(20484096);
+	dl_vol = std::string( 12 - dl_vol.size() , '0').append( dl_vol);
+	populate(record.VOLUME_UPLINK, ul_vol);
+	populate(record.VOLUME_DOWNLINK, dl_vol);
 }
 
 void edr::populate_record_entity(std::string smsc_number)

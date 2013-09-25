@@ -8,7 +8,7 @@ class edr
 private:
 	/* constructors not used */
 	edr(const edr &) {}								//pre-emptive definition, avoid copy construction for now
-	edr & operator=(const edr &) { return *this; }	//pre-epmtive definition, avoid construction by assignment
+	edr & operator=(const edr &) { return *this; }	//pre-emptive definition, avoid construction by assignment
 	/* members */
 	/* structures */
 	typedef struct
