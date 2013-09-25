@@ -11,10 +11,8 @@
 #include "structures.h"
 #include "static_methods.h"
 
-//TODO: CFW records and third party numbers - make sure number makes sense
 //TODO: add flag to generate random errors, like validation errors, fields missing, fields longer than needed
 //TODO: generated number and test sim card numbers should not be the same.
-//TODO: when specifying record type, allow for syntax like "-r 6" or "-r 06"
 
 const int MAX_SMSC_TO_GENERATE = 1000;
 static std::vector<std::string> smsc_numbers;
